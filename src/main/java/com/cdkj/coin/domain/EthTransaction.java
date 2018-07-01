@@ -1,9 +1,9 @@
 package com.cdkj.coin.domain;
 
-import com.cdkj.coin.dao.base.ABaseDO;
-
 import java.math.BigInteger;
 import java.util.Date;
+
+import com.cdkj.coin.dao.base.ABaseDO;
 
 /**
 * 以太坊交易
@@ -13,203 +13,231 @@ import java.util.Date;
 */
 public class EthTransaction extends ABaseDO {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	// 交易hash
-	private String hash;
+    // 交易hash
+    private String hash;
 
-	// 第几个交易
-	private BigInteger nonce;
+    // 第几个交易
+    private BigInteger nonce;
 
-	// 区块hash
-	private String blockHash;
+    // 区块hash
+    private String blockHash;
 
-	// 区块编号
-	private String blockNumber;
+    // 区块编号
+    private String blockNumber;
 
-	// transactionIndex
-	private BigInteger transactionIndex;
+    // transactionIndex
+    private BigInteger transactionIndex;
 
-	// 发送地址
-	private String from;
+    // 发送地址
+    private String from;
 
-	// 接受地址
-	private String to;
+    // 接受地址
+    private String to;
 
-	// 数量
-	private String value;
+    // 数量
+    private String value;
 
-	// gas价格
-	private String gasPrice;
+    // gas价格
+    private String gasPrice;
 
-	// gasLimit
-	private BigInteger gas;
+    // gasLimit
+    private BigInteger gas;
 
-	//消耗gas
-	private BigInteger gasUsed;
+    // 消耗gas
+    private BigInteger gasUsed;
 
-	public BigInteger getGasUsed() {
-		return gasUsed;
-	}
+    private String tokenFrom;
 
-	public void setGasUsed(BigInteger gasUsed) {
-		this.gasUsed = gasUsed;
-	}
+    private String tokenTo;
 
-	//区块生成时间
-	private Date blockCreateDatetime;
+    private BigInteger tokenValue;
 
-	//区块生成时间
-	private Date syncDatetime;
+    public String getTokenFrom() {
+        return tokenFrom;
+    }
 
-	private String status;
+    public void setTokenFrom(String tokenFrom) {
+        this.tokenFrom = tokenFrom;
+    }
 
-	// ################# 一下属性为查询而添加 ##############
-	private Date blockCreateDatetimeStart;
-	private Date blockCreateDatetimeEnd;
+    public String getTokenTo() {
+        return tokenTo;
+    }
 
+    public void setTokenTo(String tokenTo) {
+        this.tokenTo = tokenTo;
+    }
 
-	public Date getBlockCreateDatetimeStart() {
-		return blockCreateDatetimeStart;
-	}
+    public BigInteger getTokenValue() {
+        return tokenValue;
+    }
 
-	public void setBlockCreateDatetimeStart(Date blockCreateDatetimeStart) {
-		this.blockCreateDatetimeStart = blockCreateDatetimeStart;
-	}
+    public void setTokenValue(BigInteger tokenValue) {
+        this.tokenValue = tokenValue;
+    }
 
-	public Date getBlockCreateDatetimeEnd() {
-		return blockCreateDatetimeEnd;
-	}
+    public BigInteger getGasUsed() {
+        return gasUsed;
+    }
 
-	public void setBlockCreateDatetimeEnd(Date blockCreateDatetimeEnd) {
-		this.blockCreateDatetimeEnd = blockCreateDatetimeEnd;
-	}
+    public void setGasUsed(BigInteger gasUsed) {
+        this.gasUsed = gasUsed;
+    }
 
-	public static long getSerialVersionUID() {
-		return serialVersionUID;
-	}
+    // 区块生成时间
+    private Date blockCreateDatetime;
 
-	public Date getBlockCreateDatetime() {
-		return blockCreateDatetime;
-	}
+    // 区块生成时间
+    private Date syncDatetime;
 
-	public void setBlockCreateDatetime(Date blockCreateDatetime) {
-		this.blockCreateDatetime = blockCreateDatetime;
-	}
+    private String status;
 
+    // ################# 一下属性为查询而添加 ##############
+    private Date blockCreateDatetimeStart;
 
-	public Date getSyncDatetime() {
-		return syncDatetime;
-	}
+    private Date blockCreateDatetimeEnd;
 
-	public void setSyncDatetime(Date syncDatetime) {
-		this.syncDatetime = syncDatetime;
-	}
+    public Date getBlockCreateDatetimeStart() {
+        return blockCreateDatetimeStart;
+    }
 
-	public String getStatus() {
-		return status;
-	}
+    public void setBlockCreateDatetimeStart(Date blockCreateDatetimeStart) {
+        this.blockCreateDatetimeStart = blockCreateDatetimeStart;
+    }
 
-	public void setStatus(String status) {
-		this.status = status;
-	}
-	//	// input
-//	private String input;
-//
-//	// 创建时间
-//	private String creates;
-//
-//	// publicKey
-//	private String publicKey;
-//
-//	// raw
-//	private String raw;
-//
-//	// r
-//	private String r;
-//
-//	// s
-//	private String s;
+    public Date getBlockCreateDatetimeEnd() {
+        return blockCreateDatetimeEnd;
+    }
 
+    public void setBlockCreateDatetimeEnd(Date blockCreateDatetimeEnd) {
+        this.blockCreateDatetimeEnd = blockCreateDatetimeEnd;
+    }
 
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
 
-	public void setHash(String hash) {
-		this.hash = hash;
-	}
+    public Date getBlockCreateDatetime() {
+        return blockCreateDatetime;
+    }
 
-	public String getHash() {
-		return hash;
-	}
+    public void setBlockCreateDatetime(Date blockCreateDatetime) {
+        this.blockCreateDatetime = blockCreateDatetime;
+    }
 
-	public BigInteger getNonce() {
-		return nonce;
-	}
+    public Date getSyncDatetime() {
+        return syncDatetime;
+    }
 
-	public void setNonce(BigInteger nonce) {
-		this.nonce = nonce;
-	}
+    public void setSyncDatetime(Date syncDatetime) {
+        this.syncDatetime = syncDatetime;
+    }
 
-	public void setBlockHash(String blockHash) {
-		this.blockHash = blockHash;
-	}
+    public String getStatus() {
+        return status;
+    }
 
-	public String getBlockHash() {
-		return blockHash;
-	}
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
-	public void setBlockNumber(String blockNumber) {
-		this.blockNumber = blockNumber;
-	}
+    // // input
+    // private String input;
+    //
+    // // 创建时间
+    // private String creates;
+    //
+    // // publicKey
+    // private String publicKey;
+    //
+    // // raw
+    // private String raw;
+    //
+    // // r
+    // private String r;
+    //
+    // // s
+    // private String s;
 
-	public String getBlockNumber() {
-		return blockNumber;
-	}
+    public void setHash(String hash) {
+        this.hash = hash;
+    }
 
-	public BigInteger getTransactionIndex() {
-		return transactionIndex;
-	}
+    public String getHash() {
+        return hash;
+    }
 
-	public void setTransactionIndex(BigInteger transactionIndex) {
-		this.transactionIndex = transactionIndex;
-	}
+    public BigInteger getNonce() {
+        return nonce;
+    }
 
-	public void setFrom(String from) {
-		this.from = from;
-	}
+    public void setNonce(BigInteger nonce) {
+        this.nonce = nonce;
+    }
 
-	public String getFrom() {
-		return from;
-	}
+    public void setBlockHash(String blockHash) {
+        this.blockHash = blockHash;
+    }
 
-	public void setTo(String to) {
-		this.to = to;
-	}
+    public String getBlockHash() {
+        return blockHash;
+    }
 
-	public String getTo() {
-		return to;
-	}
+    public void setBlockNumber(String blockNumber) {
+        this.blockNumber = blockNumber;
+    }
 
-	public void setValue(String value) {
-		this.value = value;
-	}
+    public String getBlockNumber() {
+        return blockNumber;
+    }
 
-	public String getValue() {
-		return value;
-	}
+    public BigInteger getTransactionIndex() {
+        return transactionIndex;
+    }
 
-	public void setGasPrice(String gasPrice) {
-		this.gasPrice = gasPrice;
-	}
+    public void setTransactionIndex(BigInteger transactionIndex) {
+        this.transactionIndex = transactionIndex;
+    }
 
-	public String getGasPrice() {
-		return gasPrice;
-	}
+    public void setFrom(String from) {
+        this.from = from;
+    }
 
-	public BigInteger getGas() {
-		return gas;
-	}
+    public String getFrom() {
+        return from;
+    }
 
-	public void setGas(BigInteger gas) {
-		this.gas = gas;
-	}
+    public void setTo(String to) {
+        this.to = to;
+    }
+
+    public String getTo() {
+        return to;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setGasPrice(String gasPrice) {
+        this.gasPrice = gasPrice;
+    }
+
+    public String getGasPrice() {
+        return gasPrice;
+    }
+
+    public BigInteger getGas() {
+        return gas;
+    }
+
+    public void setGas(BigInteger gas) {
+        this.gas = gas;
+    }
 }

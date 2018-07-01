@@ -15,8 +15,9 @@ import com.cdkj.coin.bo.base.PaginableBOImpl;
 import com.cdkj.coin.dao.IEthTransactionDAO;
 import com.cdkj.coin.domain.EthTransaction;
 import com.cdkj.coin.enums.EPushStatus;
-import com.cdkj.coin.exception.EBizErrorCode;
 import com.cdkj.coin.exception.BizException;
+import com.cdkj.coin.exception.EBizErrorCode;
+import com.cdkj.coin.token.OrangeCoinToken.TransferEventResponse;
 
 @Component
 public class EthTransactionBOImpl extends PaginableBOImpl<EthTransaction>
@@ -27,7 +28,8 @@ public class EthTransactionBOImpl extends PaginableBOImpl<EthTransaction>
 
     @Override
     public EthTransaction convertTx(EthBlock.TransactionObject tx,
-            BigInteger gasUsed, BigInteger timestamp) {
+            BigInteger gasUsed, BigInteger timestamp,
+            TransferEventResponse transferEventResponse) {
 
         if (tx == null || timestamp == null)
             return null;
@@ -49,10 +51,19 @@ public class EthTransactionBOImpl extends PaginableBOImpl<EthTransaction>
 
         //
         transaction.setStatus(EPushStatus.UN_PUSH.getCode());
+        transaction.setStatus(EPushStatus.UN_PUSH.getCode());
+        transaction.setStatus(EPushStatus.UN_PUSH.getCode());
+        transaction.setStatus(EPushStatus.UN_PUSH.getCode());
         transaction.setBlockCreateDatetime(new Date(
             timestamp.longValue() * 1000));
         //
         transaction.setGasUsed(gasUsed);
+
+        if (null != transferEventResponse) {
+            transaction.setTokenFrom(transferEventResponse.from);
+            transaction.setTokenTo(transferEventResponse.to);
+            transaction.setTokenValue(transferEventResponse.value);
+        }
 
         return transaction;
     }
@@ -105,8 +116,7 @@ public class EthTransactionBOImpl extends PaginableBOImpl<EthTransaction>
             condition.setHash(hash);
             data = ethTransactionDAO.select(condition);
             if (data == null) {
-                throw new BizException(
-                    EBizErrorCode.DEFAULT.getErrorCode(),
+                throw new BizException(EBizErrorCode.DEFAULT.getErrorCode(),
                     "以太坊交易记录不存在");
             }
         }

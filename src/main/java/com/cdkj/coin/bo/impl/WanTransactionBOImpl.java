@@ -1,5 +1,6 @@
 package com.cdkj.coin.bo.impl;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
@@ -17,6 +18,7 @@ import com.cdkj.coin.domain.WanTransaction;
 import com.cdkj.coin.enums.EPushStatus;
 import com.cdkj.coin.exception.BizException;
 import com.cdkj.coin.exception.EBizErrorCode;
+import com.cdkj.coin.token.OrangeCoinToken.TransferEventResponse;
 
 @Component
 public class WanTransactionBOImpl extends PaginableBOImpl<WanTransaction>
@@ -27,7 +29,8 @@ public class WanTransactionBOImpl extends PaginableBOImpl<WanTransaction>
 
     @Override
     public WanTransaction convertTx(EthBlock.TransactionObject tx,
-            BigInteger gasUsed, BigInteger timestamp) {
+            BigInteger gasUsed, BigInteger timestamp,
+            TransferEventResponse transferEventResponse) {
 
         if (tx == null || timestamp == null)
             return null;
@@ -49,11 +52,16 @@ public class WanTransactionBOImpl extends PaginableBOImpl<WanTransaction>
 
         //
         transaction.setStatus(EPushStatus.UN_PUSH.getCode());
-        transaction
-            .setBlockCreateDatetime(new Date(timestamp.longValue() * 1000));
+        transaction.setBlockCreateDatetime(new Date(
+            timestamp.longValue() * 1000));
         //
         transaction.setGasUsed(gasUsed);
-
+        if (null != transferEventResponse) {
+            transaction.setTokenFrom(transferEventResponse.from);
+            transaction.setTokenTo(transferEventResponse.to);
+            transaction.setTokenValue(new BigDecimal(
+                transferEventResponse.value.toString()));
+        }
         return transaction;
     }
 
@@ -65,8 +73,7 @@ public class WanTransactionBOImpl extends PaginableBOImpl<WanTransaction>
     }
 
     @Override
-    public List<WanTransaction> queryWanTransactionList(
-            WanTransaction condition) {
+    public List<WanTransaction> queryWanTransactionList(WanTransaction condition) {
         return wanTransactionDAO.selectList(condition);
     }
 

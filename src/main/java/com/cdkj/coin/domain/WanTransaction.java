@@ -1,5 +1,6 @@
 package com.cdkj.coin.domain;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Date;
 
@@ -38,6 +39,21 @@ public class WanTransaction extends ABaseDO {
 
     // 数量
     private String value;
+
+    // input 输入
+    private String input;
+
+    // token币发起地址
+    private String tokenFrom;
+
+    // token币接收地址
+    private String tokenTo;
+
+    // token币数量
+    private BigDecimal tokenValue;
+
+    // event_log_index
+    private BigInteger tokenLogIndex;
 
     // gas价格
     private String gasPrice;
@@ -112,6 +128,7 @@ public class WanTransaction extends ABaseDO {
     public void setStatus(String status) {
         this.status = status;
     }
+
     // // input
     // private String input;
     //
@@ -208,5 +225,45 @@ public class WanTransaction extends ABaseDO {
 
     public void setGas(BigInteger gas) {
         this.gas = gas;
+    }
+
+    public String getInput() {
+        return input;
+    }
+
+    public void setInput(String input) {
+        this.input = input;
+    }
+
+    public String getTokenFrom() {
+        return tokenFrom;
+    }
+
+    public void setTokenFrom(String tokenFrom) {
+        this.tokenFrom = tokenFrom;
+    }
+
+    public String getTokenTo() {
+        return tokenTo;
+    }
+
+    public void setTokenTo(String tokenTo) {
+        this.tokenTo = tokenTo;
+    }
+
+    public BigDecimal getTokenValue() {
+        return tokenValue;
+    }
+
+    public void setTokenValue(BigDecimal tokenValue) {
+        this.tokenValue = tokenValue;
+    }
+
+    public BigInteger getTokenLogIndex() {
+        return tokenLogIndex;
+    }
+
+    public void setTokenLogIndex(BigInteger tokenLogIndex) {
+        this.tokenLogIndex = tokenLogIndex;
     }
 }

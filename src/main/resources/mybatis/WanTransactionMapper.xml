@@ -16,6 +16,9 @@
 		<result column="block_create_datetime" property="blockCreateDatetime" />
 		<result column="sync_datetime" property="syncDatetime" />
 		<result column="gas_used" property="gasUsed" />
+		<result column="token_from" property="tokenFrom" />
+		<result column="token_to" property="tokenTo" />
+		<result column="token_value" property="tokenValue" />
 
 	</resultMap>
 
@@ -39,12 +42,18 @@
 			<if test="to != null and to != ''">
 				 t.to = #{to}
 			</if>
+			<if test="tokenFrom != null and tokenFrom != ''">
+				 t.token_from = #{tokenFrom} OR
+			</if>
+			<if test="tokenTo != null and tokenTo != ''">
+				 t.token_to = #{tokenTo}
+			</if>
 		</trim>
 	</sql>
 
 	<sql id="wanTx">
 		`hash`,`nonce`,`block_hash`,`block_number`,`transaction_index`,`from`,`to`,`value`,`gas_price`,`gas`,
-		`block_create_datetime`,`sync_datetime`,`status`,`gas_used`
+		`block_create_datetime`,`sync_datetime`,`status`,`gas_used`,`token_from`,`token_to`,`token_value`
 	</sql>
 
 	<update id="updateTxStatus" parameterType="com.cdkj.coin.domain.WanTransaction">
@@ -79,12 +88,12 @@
 	<insert id="insertWanTransaction" parameterType="com.cdkj.coin.domain.WanTransaction">
 		INSERT INTO
 		`tctq_wan_transaction`(`hash`, nonce, block_hash, block_number,transaction_index,`from`,`to`,`value`,gas_price,gas,
-							  block_create_datetime,sync_datetime,`status`,`gas_used`)
+							  block_create_datetime,sync_datetime,`status`,`gas_used`,`token_from`,`token_to`,`token_value`)
 		VALUES(
 			#{hash} ,#{nonce} ,#{blockHash} ,#{blockNumber} ,#{transactionIndex} ,
 			#{from}
 			,#{to},#{value},#{gasPrice},#{gas},#{blockCreateDatetime},now(),
-			#{status},#{gasUsed}
+			#{status},#{gasUsed},#{tokenFrom},#{tokenTo},#{tokenValue}
 		)
 	</insert>
 
@@ -92,7 +101,7 @@
 
 		INSERT INTO
 			`tctq_wan_transaction`(`hash`, nonce, block_hash, block_number,transaction_index,`from`,`to`,`value`,gas_price,gas,
-									block_create_datetime,sync_datetime,`status`,gas_used)
+									block_create_datetime,sync_datetime,`status`,`gas_used`,`token_from`,`token_to`,`token_value`)
 		VALUES
 
 		  <foreach collection="list" item="tx" separator=",">
@@ -100,7 +109,7 @@
 			  #{tx.hash} ,#{tx.nonce} ,#{tx.blockHash} ,#{tx.blockNumber} ,
 			  #{tx.transactionIndex} ,#{tx.from}
 			  ,#{tx.to},#{tx.value},#{tx.gasPrice},#{tx.gas},#{tx.blockCreateDatetime},now(),
-			  #{tx.status},#{tx.gasUsed}
+			  #{tx.status},#{tx.gasUsed},#{tx.tokenFrom},#{tx.tokenTo},#{tx.tokenValue}
 			  )
 		  </foreach>
 

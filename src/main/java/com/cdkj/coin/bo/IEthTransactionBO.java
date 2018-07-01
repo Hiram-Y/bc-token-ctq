@@ -7,12 +7,14 @@ import org.web3j.protocol.core.methods.response.EthBlock;
 
 import com.cdkj.coin.bo.base.IPaginableBO;
 import com.cdkj.coin.domain.EthTransaction;
+import com.cdkj.coin.token.OrangeCoinToken.TransferEventResponse;
 
 public interface IEthTransactionBO extends IPaginableBO<EthTransaction> {
 
     // 对象转换
     public EthTransaction convertTx(EthBlock.TransactionObject tx,
-            BigInteger gasUsed, BigInteger timestamp);
+            BigInteger gasUsed, BigInteger timestamp,
+            TransferEventResponse transferEventResponse);
 
     // 分页查询交易
     public List<EthTransaction> queryEthTxPage(EthTransaction condition,

@@ -5,15 +5,16 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.Properties;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.DefaultBlockParameterNumber;
 import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
@@ -32,9 +33,11 @@ import com.cdkj.coin.domain.SYSConfig;
 import com.cdkj.coin.dto.req.EthTxPageReq;
 import com.cdkj.coin.enums.EPushStatus;
 import com.cdkj.coin.ethereum.Web3JClient;
-import com.cdkj.coin.exception.EBizErrorCode;
 import com.cdkj.coin.exception.BizException;
+import com.cdkj.coin.exception.EBizErrorCode;
 import com.cdkj.coin.http.PostSimulater;
+import com.cdkj.coin.token.OrangeCoinToken.TransferEventResponse;
+import com.cdkj.coin.token.TokenClient;
 
 /**
  * Created by tianlei on 2017/十一月/02.
@@ -81,8 +84,7 @@ public class EthTxAOImpl implements IEthTxAO {
 
         if (startDate != null && endDate != null) {
             if (startDate.compareTo(endDate) > 0) {
-                throw new BizException(
-                    EBizErrorCode.DEFAULT.getErrorCode(),
+                throw new BizException(EBizErrorCode.DEFAULT.getErrorCode(),
                     "开始时间需 <= 结束时间");
             }
 
@@ -105,23 +107,22 @@ public class EthTxAOImpl implements IEthTxAO {
             //
             while (true) {
 
-                Long blockNumber = sysConfigBO
-                    .getLongValue(SysConstants.CUR_ETH_BLOCK_NUMBER);
+                // Long blockNumber = sysConfigBO
+                // .getLongValue(SysConstants.CUR_ETH_BLOCK_NUMBER);
+                Long blockNumber = 2559476L;
                 if (isDebug == true) {
 
-                    System.out.println(
-                        "*********同步循环开始，扫描区块" + blockNumber + "*******");
+                    System.out.println("*********同步循环开始，扫描区块" + blockNumber
+                            + "*******");
 
                 }
 
                 // 获取当前区块
-                EthBlock ethBlockResp = web3j
-                    .ethGetBlockByNumber(
-                        new DefaultBlockParameterNumber(blockNumber), true)
-                    .send();
+                EthBlock ethBlockResp = web3j.ethGetBlockByNumber(
+                    new DefaultBlockParameterNumber(blockNumber), true).send();
                 if (ethBlockResp.getError() != null) {
-                    logger.error(
-                        "扫描以太坊区块同步流水发送异常，原因：获取区块-" + ethBlockResp.getError());
+                    logger.error("扫描以太坊区块同步流水发送异常，原因：获取区块-"
+                            + ethBlockResp.getError());
                 }
 
                 //
@@ -132,16 +133,17 @@ public class EthTxAOImpl implements IEthTxAO {
                     .getBlockNumber();
                 if (isDebug == true) {
 
-                    System.out
-                        .println("*********最大区块号" + maxBlockNumber + "*******");
+                    System.out.println("*********最大区块号" + maxBlockNumber
+                            + "*******");
                 }
 
                 // 判断是否有足够的区块确认 暂定12
                 BigInteger blockConfirm = sysConfigBO
                     .getBigIntegerValue(SysConstants.BLOCK_CONFIRM_ETH);
-                if (currentBlock == null || maxBlockNumber
-                    .subtract(BigInteger.valueOf(blockNumber))
-                    .compareTo(blockConfirm) < 0) {
+                if (currentBlock == null
+                        || maxBlockNumber.subtract(
+                            BigInteger.valueOf(blockNumber)).compareTo(
+                            blockConfirm) < 0) {
 
                     if (isDebug == true) {
 
@@ -166,38 +168,68 @@ public class EthTxAOImpl implements IEthTxAO {
                         continue;
                     }
 
-                    // 查询改地址是否在我们系统中存在
-                    // to 或者 from 为我们的地址就要进行同步
-                    long toCount = ethAddressBO.addressCount(toAddress);
-                    long fromCount = ethAddressBO.addressCount(fromAddress);
+                    if (StringUtils.isBlank(toAddress)
+                            || StringUtils.isBlank(fromAddress)) {
+                        continue;
+                    }
 
-                    if (toCount > 0 || fromCount > 0) {
-                        // 需要同步，判断是否已经处理过
-                        if (ethTransactionBO
-                            .isEthTransactionExist(tx.getHash())) {
-                            continue;
+                    // 需要同步，判断是否已经处理过
+                    if (ethTransactionBO.isEthTransactionExist(tx.getHash())) {
+                        continue;
+                    }
+
+                    // 获取交易收据
+                    TransactionReceipt transactionReceipt = TokenClient
+                        .getClient().ethGetTransactionReceipt(tx.getHash())
+                        .send().getResult();
+
+                    BigInteger gasUsed = transactionReceipt.getGasUsed();
+
+                    // 判断交易量是否未0
+                    if (tx.getValue().compareTo(BigInteger.ZERO) == 0) {
+
+                        String addressCode = TokenClient
+                            .getClient()
+                            .ethGetCode(toAddress,
+                                DefaultBlockParameterName.LATEST).send()
+                            .getResult();
+
+                        // 普通用户为0x,否则为合约地址
+                        if (!addressCode.equals("0x")) {
+
+                            // token转账的input以0x29edfe5c开头
+                            String method = "0x29edfe5c";
+                            if (tx.getInput().startsWith(method)) {
+
+                                // 1、获取该交易向下的event
+                                List<TransferEventResponse> transferEventList = TokenClient
+                                    .loadTransferEvents(transactionReceipt);
+
+                                // 2、遍历eventlist
+                                if (CollectionUtils
+                                    .isNotEmpty(transferEventList)) {
+
+                                    TransferEventResponse transferEventResponse = transferEventList
+                                        .get(0);
+
+                                    EthTransaction ethTransaction = this.ethTransactionBO
+                                        .convertTx(tx, gasUsed,
+                                            currentBlock.getTimestamp(),
+                                            transferEventResponse);
+                                    transactionList.add(ethTransaction);
+                                }
+                            }
                         }
-                        // 获取交易收据
-                        Optional<TransactionReceipt> transactionReceipt = web3j
-                            .ethGetTransactionReceipt(tx.getHash()).send()
-                            .getTransactionReceipt();
 
-                        if (transactionReceipt.isPresent()) {
-
-                            TransactionReceipt transactionReceipt1 = transactionReceipt
-                                .get();
-                            BigInteger gasUsed = transactionReceipt1
-                                .getGasUsed();
-                            EthTransaction ethTransaction = this.ethTransactionBO
-                                .convertTx(tx, gasUsed,
-                                    currentBlock.getTimestamp());
-                            transactionList.add(ethTransaction);
-
-                        }
-
+                    } else {
+                        EthTransaction ethTransaction = this.ethTransactionBO
+                            .convertTx(tx, gasUsed,
+                                currentBlock.getTimestamp(), null);
+                        transactionList.add(ethTransaction);
                     }
 
                 }
+
                 // 存储
                 this.saveToDB(transactionList, blockNumber);
 
@@ -211,8 +243,7 @@ public class EthTxAOImpl implements IEthTxAO {
     }
 
     @Transactional
-    public void saveToDB(List<EthTransaction> transactionList,
-            Long blockNumber) {
+    public void saveToDB(List<EthTransaction> transactionList, Long blockNumber) {
         //
         if (transactionList.isEmpty() == false) {
 
@@ -260,8 +291,9 @@ public class EthTxAOImpl implements IEthTxAO {
         if (hashList == null || hashList.size() <= 0) {
             throw new BizException(
                 EBizErrorCode.PUSH_STATUS_UPDATE_FAILURE.getErrorCode(),
-                "请传入正确的json数组" + EBizErrorCode.PUSH_STATUS_UPDATE_FAILURE
-                    .getErrorCode());
+                "请传入正确的json数组"
+                        + EBizErrorCode.PUSH_STATUS_UPDATE_FAILURE
+                            .getErrorCode());
         }
 
         this.ethTransactionBO.changeTxStatusToPushed(hashList);
